@@ -21,6 +21,61 @@
             color: #333;
         }
 
+        /* --- شاشة البداية --- */
+        .start-screen {
+            max-width: 600px;
+            margin: 80px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 6px solid var(--primary);
+        }
+
+        .start-screen .school-logo {
+            max-width: 130px;
+            margin-bottom: 20px;
+        }
+
+        .start-screen h1 {
+            color: var(--primary);
+            font-size: 24px;
+            direction: rtl;
+            margin-bottom: 10px;
+        }
+
+        .start-screen h2 {
+            color: #c0392b;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .start-screen p {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .start-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .start-btn:hover {
+            background: #219150;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.6);
+        }
+
         /* تنسيق المؤقت الثابت */
         .timer-container {
             position: fixed;
@@ -199,45 +254,56 @@
 </head>
 <body>
 
-<div class="timer-container" id="timerBox">
-    <span>Time Left:</span>
-    <span id="timer">30:00</span>
+<div id="startScreen" class="start-screen">
+    <img src="https://i.ibb.co/dsF6pmMw/20170618225634.jpg" alt="School Logo" class="school-logo">
+    <h1>مدرسة الشهيد زهاء الدين الحمود الثانوية للبنين</h1>
+    <h2>Unit Seven Exam: English Language</h2>
+    <p>إعداد الأستاذ: أسامة فودة</p>
+    <p style="color: #e74c3c; font-weight: bold;">Time allowed: 30 Minutes</p>
+    <button class="start-btn" onclick="startExam()">Start Exam / ابدأ الامتحان</button>
 </div>
 
-<div class="container">
-    <div class="model-tag">النموذج الأول</div>
+<div id="examWrapper" style="display: none;">
+    <div class="timer-container" id="timerBox">
+        <span>Time Left:</span>
+        <span id="timer">30:00</span>
+    </div>
 
-    <header>
-        <img src="https://i.ibb.co/dsF6pmMw/20170618225634.jpg" alt="School Logo" class="school-logo">
-        <div class="school-name">مدرسة الشهيد زهاء الدين الحمود الثانوية للبنين</div>
-        <div class="teacher-info">
-            <span class="teacher-name">إعداد الأستاذ: أسامة فودة</span>
-        </div>
-        <div class="exam-title">Unit Seven Exam: English Language</div>
-    </header>
+    <div class="container">
+        <div class="model-tag">النموذج الأول</div>
 
-    <div id="scoreDisplay" class="result-sticky"></div>
+        <header>
+            <img src="https://i.ibb.co/dsF6pmMw/20170618225634.jpg" alt="School Logo" class="school-logo">
+            <div class="school-name">مدرسة الشهيد زهاء الدين الحمود الثانوية للبنين</div>
+            <div class="teacher-info">
+                <span class="teacher-name">إعداد الأستاذ: أسامة فودة</span>
+            </div>
+            <div class="exam-title">Unit Seven Exam: English Language</div>
+        </header>
 
-    <form id="quizForm">
-        <h2 class="section-header">Question One: Read the text, then answer the questions</h2>
-        
-        <div class="passage-box">
-            As a teenager, the sight of Mount Kilimanjaro rising majestically above the Serengeti made Vern Jones desperately want to climb it. 
-            Finally in 2014, at the age of 62, Vern finally realised his dream while accompanied by his daughters and their husbands. 
-            However, he was all too aware that he couldn’t have succeeded without the help of the guides. 
-            These young men, who are often ill-equipped themselves and poorly paid, work daily in dangerous conditions to help climbers achieve their goals. 
-            Vern’s response was to found Kili Summit Club which raises money to help the guides from the proceeds of mountain gear sales. 
-            They receive footwear and equipment to help them with their work, as well as commission from sales, allowing climbers to support them long after their adventure is over.
-        </div>
+        <div id="scoreDisplay" class="result-sticky"></div>
 
-        <div id="readingQuestionsSection"></div>
+        <form id="quizForm">
+            <h2 class="section-header">Question One: Read the text, then answer the questions</h2>
+            
+            <div class="passage-box">
+                As a teenager, the sight of Mount Kilimanjaro rising majestically above the Serengeti made Vern Jones desperately want to climb it. 
+                Finally in 2014, at the age of 62, Vern finally realised his dream while accompanied by his daughters and their husbands. 
+                However, he was all too aware that he couldn’t have succeeded without the help of the guides. 
+                These young men, who are often ill-equipped themselves and poorly paid, work daily in dangerous conditions to help climbers achieve their goals. 
+                Vern’s response was to found Kili Summit Club which raises money to help the guides from the proceeds of mountain gear sales. 
+                They receive footwear and equipment to help them with their work, as well as commission from sales, allowing climbers to support them long after their adventure is over.
+            </div>
 
-        <h2 class="section-header">Question Two: Reported Speech Mastery</h2>
-        
-        <div id="grammarQuestionsSection"></div>
+            <div id="readingQuestionsSection"></div>
 
-        <button type="button" id="submitBtn" class="submit-btn" onclick="gradeQuiz()">Finish & Calculate Score</button>
-    </form>
+            <h2 class="section-header">Question Two: Reported Speech Mastery</h2>
+            
+            <div id="grammarQuestionsSection"></div>
+
+            <button type="button" id="submitBtn" class="submit-btn" onclick="gradeQuiz()">Finish & Calculate Score</button>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -261,7 +327,7 @@
         { id: 13, q: "\"I'm coming!\"", options: ["She said that she is coming.", "She said that she was coming.", "She said that she has been coming.", "She said that she would come."], ans: "B" },
         { id: 14, q: "\"I was waiting for the bus when he arrived.\"", options: ["She told me that she was waiting for the bus when he arrived.", "She told me that she had been waiting for the bus when he arrived.", "She told me that she is waiting for the bus when he arrived.", "She told me that she had waited for the bus when he arrived."], ans: "B" },
         { id: 15, q: "\"I'd never been there before.\"", options: ["She said that she never went there before.", "She said that she had never been there before.", "She said that she has never been there before.", "She said that she never was there before."], ans: "B" },
-        { id: 16, q: "\"I didn't go to the party.\"", options: ["She told me that she didn't go to the party.", "She told me that she doesn't go to the party.", "She told me that she hadn't gone to the party.", "She told me that she hasn't gone to the party."], ans: "C" },
+        { id: 16, q: "\"I didn't go to the party.\"", options: ["She told me that she didn't go to the party.", "She told me that she doesn't go to the party.", "She hadn't gone to the party.", "She told me that she hasn't gone to the party."], ans: "C" },
         { id: 17, q: "\"Lucy'll come later.\"", options: ["She said that Lucy would come later.", "She said that Lucy will come later.", "She said that Lucy is coming later.", "She said that Lucy comes later."], ans: "A" },
         { id: 18, q: "\"He hasn't eaten breakfast.\"", options: ["She told me that he didn't eat breakfast.", "She told me that he hasn't eaten breakfast.", "She told me that he hadn't eaten breakfast.", "She told me that he won't eat breakfast."], ans: "C" },
         { id: 19, q: "\"I can help you tomorrow.\"", options: ["She said that she could help me tomorrow.", "She said that she can help me tomorrow.", "She said that she was helping me tomorrow.", "She said that she could help me the next day."], ans: "D" },
@@ -289,35 +355,50 @@
         });
     }
 
-    // --- نظام المؤقت الصارم ---
-    const EXAM_MINUTES = 30;
-    let endTime = localStorage.getItem('examEndTime');
+    let countdown;
 
-    if (!endTime) {
-        endTime = Date.now() + (EXAM_MINUTES * 60 * 1000);
-        localStorage.setItem('examEndTime', endTime);
+    // دالة بدء الامتحان
+    function startExam() {
+        // إخفاء شاشة البداية وإظهار الامتحان
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('examWrapper').style.display = 'block';
+
+        // ضبط الوقت
+        if (!localStorage.getItem('examEndTime')) {
+            const EXAM_MINUTES = 30;
+            let endTime = Date.now() + (EXAM_MINUTES * 60 * 1000);
+            localStorage.setItem('examEndTime', endTime);
+        }
+        
+        // ماركر لبداية الامتحان
+        localStorage.setItem('examStarted', 'true');
+        
+        initTimer();
     }
 
-    const timerDisplay = document.getElementById('timer');
-    const timerBox = document.getElementById('timerBox');
+    function initTimer() {
+        let endTime = localStorage.getItem('examEndTime');
+        const timerDisplay = document.getElementById('timer');
+        const timerBox = document.getElementById('timerBox');
 
-    const countdown = setInterval(() => {
-        const now = Date.now();
-        const difference = endTime - now;
+        countdown = setInterval(() => {
+            const now = Date.now();
+            const difference = endTime - now;
 
-        if (difference <= 0) {
-            clearInterval(countdown);
-            timerDisplay.innerHTML = "00:00";
-            if (!localStorage.getItem('examFinished')) autoSubmit();
-            return;
-        }
+            if (difference <= 0) {
+                clearInterval(countdown);
+                timerDisplay.innerHTML = "00:00";
+                if (!localStorage.getItem('examFinished')) autoSubmit();
+                return;
+            }
 
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        
-        timerDisplay.innerHTML = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        if (difference < 120000) timerBox.classList.add('timer-warning');
-    }, 1000);
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+            
+            timerDisplay.innerHTML = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            if (difference < 120000) timerBox.classList.add('timer-warning');
+        }, 1000);
+    }
 
     function autoSubmit() {
         alert("Time is up! Submitting your answers.");
@@ -359,9 +440,20 @@
     window.onload = () => {
         renderQuestions(readingData, 'readingQuestionsSection');
         renderQuestions(grammarData, 'grammarQuestionsSection');
+        
+        // إذا كان الطالب قد أنهى الامتحان مسبقاً، أظهر له النتيجة مباشرة
         if (localStorage.getItem('examFinished')) {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('examWrapper').style.display = 'block';
             setTimeout(gradeQuiz, 300);
+        } 
+        // إذا كان الطالب قد بدأ الامتحان وأغلق الصفحة، أرجعه للامتحان مباشرة
+        else if (localStorage.getItem('examStarted')) {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('examWrapper').style.display = 'block';
+            initTimer();
         }
+        // غير ذلك، تظهر شاشة البداية
     };
 </script>
 
