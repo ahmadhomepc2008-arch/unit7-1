@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Exam - Teacher Osama Foudeh</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 3px solid var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+        }
+
+        .school-logo { max-width: 120px; margin-bottom: 10px; }
+        .school-name { font-size: 26px; font-weight: bold; color: var(--primary); direction: rtl; }
+        .teacher-name { 
+            font-size: 1.2rem; 
+            color: #2c3e50; 
+            margin-top: 8px; 
+            font-weight: bold;
+            background: #ecf0f1;
+            display: inline-block;
+            padding: 5px 20px;
+            border-radius: 20px;
+            direction: rtl;
+        }
+        .exam-title { font-size: 20px; color: #c0392b; margin-top: 15px; font-weight: bold; text-transform: uppercase; }
+
+        .section-header {
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin: 35px 0 20px;
+            font-size: 1.2rem;
+        }
+
+        .passage-box {
+            background: #fdfdfd;
+            padding: 25px;
+            border: 1px solid #ddd;
+            border-left: 6px solid var(--primary);
+            line-height: 1.8;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            text-align: justify;
+        }
+
+        .question-block {
+            margin-bottom: 25px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 650px) { .options-grid { grid-template-columns: 1fr; } }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option-item:hover { background: #f0f7ff; border-color: var(--primary); }
+        input[type="radio"] { margin-right: 12px; transform: scale(1.2); cursor: pointer; }
+
+        /* Correction Classes */
+        .is-correct { background: #d4edda !important; border-color: #28a745 !important; color: #155724; font-weight: bold; }
+        .is-wrong { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24; }
+
+        .result-bar {
+            display: none;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            background: #27ae60;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover { background: #34495e; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <img src="https://i.ibb.co/dsF6pmMw/20170618225634.jpg" alt="School Logo" class="school-logo">
+        <div class="school-name">مدرسة الشهيد زهاء الدين الحمود الثانوية للبنين</div>
+        <div class="teacher-name">إعداد الأستاذ: أسامة فودة</div>
+        <div class="exam-title">Unit Seven Exam: English Language</div>
+    </header>
+
+    <div id="scoreDisplay" class="result-bar"></div>
+
+    <form id="quizForm">
+        <h2 class="section-header">Question One: Read the following text, then answer the questions below</h2>
+        
+        <div class="passage-box">
+            As a teenager, the sight of Mount Kilimanjaro rising majestically above the Serengeti made Vern Jones desperately want to climb it. 
+            Finally in 2014, at the age of 62, Vern finally realised his dream while accompanied by his daughters and their husbands. 
+            However, he was all too aware that he couldn’t have succeeded without the help of the guides. 
+            These young men, who are often ill-equipped themselves and poorly paid, work daily in dangerous conditions to help climbers achieve their goals. 
+            Vern’s response was to found Kili Summit Club which raises money to help the guides from the proceeds of mountain gear sales. 
+            They receive footwear and equipment to help them with their work, as well as commission from sales, allowing climbers to support them long after their adventure is over.
+        </div>
+
+        <div id="readingQuestionsSection"></div>
+
+        <h2 class="section-header">Question Two: Reported Speech - Choose the correct reported statement</h2>
+        
+        <div id="grammarQuestionsSection"></div>
+
+        <button type="button" class="submit-btn" onclick="gradeQuiz()">Submit Exam & Show Result</button>
+    </form>
+</div>
+
+<script>
+    const readingData = [
+        { id: 1, q: "What inspired Vern Jones to want to climb Mount Kilimanjaro?", options: ["Reading books about the Serengeti.", "Seeing Mount Kilimanjaro rise above the Serengeti.", "Watching a documentary about Kilimanjaro.", "Hearing stories from other climbers."], ans: "B" },
+        { id: 2, q: "At what age did Vern Jones fulfill his dream of climbing Mount Kilimanjaro?", options: ["42", "52", "62", "72"], ans: "C" },
+        { id: 3, q: "Who accompanied Vern Jones on his climb in 2014?", options: ["His friends.", "His daughters and their husbands.", "His climbing club members.", "His colleagues from work."], ans: "B" },
+        { id: 4, q: "What did Vern Jones realize about his climb?", options: ["It was the easiest thing he had ever done.", "It was possible only because of the guides.", "It was a solo accomplishment.", "It didn’t require any special skills."], ans: "B" },
+        { id: 5, q: "What challenges do the guides face while working?", options: ["They are overpaid but poorly trained.", "They work in dangerous conditions with little pay.", "They are well-equipped but underappreciated.", "They don’t face any significant challenges."], ans: "B" },
+        { id: 6, q: "What is the Kili Summit Club?", options: ["A hiking group for Mount Kilimanjaro enthusiasts.", "A club for climbers to share their experiences.", "A foundation that raises money to help Kilimanjaro guides.", "A store that sells climbing gear at a discount."], ans: "C" },
+        { id: 7, q: "How does the Kili Summit Club support the guides?", options: ["By teaching them new climbing techniques.", "By giving them free climbing lessons.", "By providing footwear, equipment, and commissions from sales.", "By organizing more climbing trips for them."], ans: "C" },
+        { id: 8, q: "What is one way climbers can continue supporting the guides after their climb?", options: ["Donating directly to the guides' families.", "Buying mountain gear from the Kili Summit Club.", "Volunteering to become guides themselves.", "Sponsoring other climbers."], ans: "B" },
+        { id: 9, q: "What does the phrase 'ill-equipped' mean in the text?", options: ["Lacking the proper tools or resources.", "Unable to climb effectively.", "Fully prepared for the climb.", "Skilled but inexperienced."], ans: "A" },
+        { id: 10, q: "What does the Kili Summit Club provide besides equipment?", options: ["Free climbing tours.", "Financial advice for guides.", "A sense of community among climbers.", "Commission from sales of mountain gear."], ans: "D" }
+    ];
+
+    const grammarData = [
+        { id: 11, q: "\"He works in a bank.\"", options: ["She said that he works in a bank.", "She said that he worked in a bank.", "She said that he is working in a bank.", "She said that he was working in a bank."], ans: "B" },
+        { id: 12, q: "\"We went out last night.\"", options: ["She told me that they went out last night.", "She told me that they had gone out last night.", "She told me that they had gone out the night before.", "She told me that they were going out the night before."], ans: "C" },
+        { id: 13, q: "\"I'm coming!\"", options: ["She said that she is coming.", "She said that she was coming.", "She said that she has been coming.", "She said that she would come."], ans: "B" },
+        { id: 14, q: "\"I was waiting for the bus when he arrived.\"", options: ["She told me that she was waiting for the bus when he arrived.", "She told me that she had been waiting for the bus when he arrived.", "She told me that she is waiting for the bus when he arrived.", "She told me that she had waited for the bus when he arrived."], ans: "B" },
+        { id: 15, q: "\"I'd never been there before.\"", options: ["She said that she never went there before.", "She said that she had never been there before.", "She said that she has never been there before.", "She said that she never was there before."], ans: "B" },
+        { id: 16, q: "\"I didn't go to the party.\"", options: ["She told me that she didn't go to the party.", "She told me that she doesn't go to the party.", "She told me that she hadn't gone to the party.", "She told me that she hasn't gone to the party."], ans: "C" },
+        { id: 17, q: "\"Lucy'll come later.\"", options: ["She said that Lucy would come later.", "She said that Lucy will come later.", "She said that Lucy is coming later.", "She said that Lucy comes later."], ans: "A" },
+        { id: 18, q: "\"He hasn't eaten breakfast.\"", options: ["She told me that he didn't eat breakfast.", "She told me that he hasn't eaten breakfast.", "She told me that he hadn't eaten breakfast.", "She told me that he won't eat breakfast."], ans: "C" },
+        { id: 19, q: "\"I can help you tomorrow.\"", options: ["She said that she could help me tomorrow.", "She said that she can help me tomorrow.", "She said that she was helping me tomorrow.", "She said that she could help me the next day."], ans: "D" },
+        { id: 20, q: "\"You should go to bed early.\"", options: ["She told me that I should go to bed early.", "She told me that you should go to bed early.", "She told me that I have to go to bed early.", "She told me that I went to bed early."], ans: "A" }
+    ];
+
+    function renderQuestions(data, containerId) {
+        const container = document.getElementById(containerId);
+        data.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'question-block';
+            div.innerHTML = `
+                <span class="question-text">${item.id}) ${item.q}</span>
+                <div class="options-grid">
+                    ${item.options.map((opt, i) => {
+                        const letter = String.fromCharCode(65 + i);
+                        return `
+                        <label class="option-item" id="label-q${item.id}-${letter}">
+                            <input type="radio" name="q${item.id}" value="${letter}"> ${letter}) ${opt}
+                        </label>`;
+                    }).join('')}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function gradeQuiz() {
+        let score = 0;
+        const allQuestions = [...readingData, ...grammarData];
+
+        allQuestions.forEach(item => {
+            const selected = document.querySelector(`input[name="q${item.id}"]:checked`);
+            const correctLetter = item.ans;
+
+            if (selected) {
+                if (selected.value === correctLetter) {
+                    score++;
+                    document.getElementById(`label-q${item.id}-${selected.value}`).classList.add('is-correct');
+                } else {
+                    document.getElementById(`label-q${item.id}-${selected.value}`).classList.add('is-wrong');
+                    document.getElementById(`label-q${item.id}-${correctLetter}`).classList.add('is-correct');
+                }
+            } else {
+                document.getElementById(`label-q${item.id}-${correctLetter}`).classList.add('is-correct');
+            }
+        });
+
+        const scoreDiv = document.getElementById('scoreDisplay');
+        scoreDiv.style.display = 'block';
+        scoreDiv.innerHTML = `Excellent Work! Final Result: ${score} / 20`;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    renderQuestions(readingData, 'readingQuestionsSection');
+    renderQuestions(grammarData, 'grammarQuestionsSection');
+</script>
+
+</body>
+</html>
