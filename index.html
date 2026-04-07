@@ -21,6 +21,28 @@
             color: #333;
         }
 
+        /* تنسيق المؤقت الثابت */
+        .timer-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1001;
+            border: 2px solid var(--primary);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #timer { font-size: 1.2rem; color: var(--primary); }
+        .timer-warning { border-color: var(--error) !important; animation: blink 1s infinite; }
+        .timer-warning #timer { color: var(--error); }
+
+        @keyframes blink { 50% { opacity: 0.7; } }
+
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -32,7 +54,6 @@
             overflow: hidden;
         }
 
-        /* تنسيق رقم النموذج الجديد والأنيق */
         .model-tag {
             position: absolute;
             top: 20px;
@@ -118,7 +139,7 @@
 
         @media (max-width: 650px) { 
             .options-grid { grid-template-columns: 1fr; }
-            .model-tag { top: 10px; right: -40px; font-size: 0.8rem; }
+            .timer-container { top: auto; bottom: 20px; left: 50%; transform: translateX(-50%); }
         }
 
         .option-item {
@@ -172,9 +193,16 @@
         }
 
         .submit-btn:hover { background: #1a252f; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(44, 62, 80, 0.4); }
+        
+        .disabled { pointer-events: none; opacity: 0.7; }
     </style>
 </head>
 <body>
+
+<div class="timer-container" id="timerBox">
+    <span>Time Left:</span>
+    <span id="timer">30:00</span>
+</div>
 
 <div class="container">
     <div class="model-tag">النموذج الأول</div>
@@ -208,12 +236,12 @@
         
         <div id="grammarQuestionsSection"></div>
 
-        <button type="button" class="submit-btn" onclick="gradeQuiz()">Finish & Calculate Score</button>
+        <button type="button" id="submitBtn" class="submit-btn" onclick="gradeQuiz()">Finish & Calculate Score</button>
     </form>
 </div>
 
 <script>
-    // بيانات الأسئلة كما هي في النسخة السابقة مع الحفاظ على الأقواس
+    // بيانات الأسئلة
     const readingData = [
         { id: 1, q: "What inspired Vern Jones to want to climb Mount Kilimanjaro?", options: ["Reading books about the Serengeti.", "Seeing Mount Kilimanjaro rise above the Serengeti.", "Watching a documentary about Kilimanjaro.", "Hearing stories from other climbers."], ans: "B" },
         { id: 2, q: "At what age did Vern Jones fulfill his dream of climbing Mount Kilimanjaro?", options: ["42", "52", "62", "72"], ans: "C" },
@@ -261,9 +289,49 @@
         });
     }
 
+    // --- نظام المؤقت الصارم ---
+    const EXAM_MINUTES = 30;
+    let endTime = localStorage.getItem('examEndTime');
+
+    if (!endTime) {
+        endTime = Date.now() + (EXAM_MINUTES * 60 * 1000);
+        localStorage.setItem('examEndTime', endTime);
+    }
+
+    const timerDisplay = document.getElementById('timer');
+    const timerBox = document.getElementById('timerBox');
+
+    const countdown = setInterval(() => {
+        const now = Date.now();
+        const difference = endTime - now;
+
+        if (difference <= 0) {
+            clearInterval(countdown);
+            timerDisplay.innerHTML = "00:00";
+            if (!localStorage.getItem('examFinished')) autoSubmit();
+            return;
+        }
+
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        
+        timerDisplay.innerHTML = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        if (difference < 120000) timerBox.classList.add('timer-warning');
+    }, 1000);
+
+    function autoSubmit() {
+        alert("Time is up! Submitting your answers.");
+        gradeQuiz();
+    }
+
     function gradeQuiz() {
+        clearInterval(countdown);
+        localStorage.setItem('examFinished', 'true');
         let score = 0;
         const allQuestions = [...readingData, ...grammarData];
+
+        document.getElementById('quizForm').classList.add('disabled');
+        document.getElementById('submitBtn').style.display = 'none';
 
         allQuestions.forEach(item => {
             const selected = document.querySelector(`input[name="q${item.id}"]:checked`);
@@ -288,8 +356,13 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    renderQuestions(readingData, 'readingQuestionsSection');
-    renderQuestions(grammarData, 'grammarQuestionsSection');
+    window.onload = () => {
+        renderQuestions(readingData, 'readingQuestionsSection');
+        renderQuestions(grammarData, 'grammarQuestionsSection');
+        if (localStorage.getItem('examFinished')) {
+            setTimeout(gradeQuiz, 300);
+        }
+    };
 </script>
 
 </body>
