@@ -249,10 +249,85 @@
 
         .submit-btn:hover { background: #1a252f; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(44, 62, 80, 0.4); }
         
+        .retake-btn {
+            background: #e67e22; 
+            margin-top: 15px;
+        }
+
+        .retake-btn:hover {
+            background: #d35400;
+        }
+
         .disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- تنسيق نافذة كلمة السر الجديدة --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pw-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 3px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .pw-card h3 { margin-bottom: 20px; color: var(--primary); direction: rtl; }
+
+        .pw-input {
+            width: 80%;
+            padding: 12px;
+            font-size: 1.2rem;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .pw-input.error { border-color: var(--error); animation: shake 0.4s; }
+        .pw-input.success { border-color: var(--accent); background: #f0fff4; }
+
+        .pw-btns { display: flex; gap: 10px; justify-content: center; }
+        .pw-btn { 
+            padding: 10px 25px; border: none; border-radius: 5px; 
+            cursor: pointer; font-weight: bold; transition: 0.2s;
+        }
+        .confirm-btn { background: var(--accent); color: white; }
+        .cancel-btn { background: #95a5a6; color: white; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
     </style>
 </head>
 <body>
+
+<div class="modal-overlay" id="pwModal">
+    <div class="pw-card" id="pwCard">
+        <h3>أدخل كلمة السر لإعادة الامتحان</h3>
+        <input type="password" id="retakePassword" class="pw-input" placeholder="Password">
+        <div class="pw-btns">
+            <button class="pw-btn confirm-btn" onclick="checkRetakePassword()">دخول</button>
+            <button class="pw-btn cancel-btn" onclick="closePwModal()">إلغاء</button>
+        </div>
+    </div>
+</div>
 
 <div id="startScreen" class="start-screen">
     <img src="https://i.ibb.co/dsF6pmMw/20170618225634.jpg" alt="School Logo" class="school-logo">
@@ -300,14 +375,15 @@
             <h2 class="section-header">Question Two: Reported Speech Mastery</h2>
             
             <div id="grammarQuestionsSection"></div>
-
-            <button type="button" id="submitBtn" class="submit-btn" onclick="gradeQuiz()">Finish & Calculate Score</button>
         </form>
+
+        <button type="button" id="submitBtn" class="submit-btn" onclick="gradeQuiz()">Finish & Calculate Score</button>
+        <button type="button" id="retakeBtn" class="submit-btn retake-btn" style="display: none;" onclick="openPwModal()">Retake Exam / إعادة الامتحان</button>
+
     </div>
 </div>
 
 <script>
-    // بيانات الأسئلة
     const readingData = [
         { id: 1, q: "What inspired Vern Jones to want to climb Mount Kilimanjaro?", options: ["Reading books about the Serengeti.", "Seeing Mount Kilimanjaro rise above the Serengeti.", "Watching a documentary about Kilimanjaro.", "Hearing stories from other climbers."], ans: "B" },
         { id: 2, q: "At what age did Vern Jones fulfill his dream of climbing Mount Kilimanjaro?", options: ["42", "52", "62", "72"], ans: "C" },
@@ -357,22 +433,17 @@
 
     let countdown;
 
-    // دالة بدء الامتحان
     function startExam() {
-        // إخفاء شاشة البداية وإظهار الامتحان
         document.getElementById('startScreen').style.display = 'none';
         document.getElementById('examWrapper').style.display = 'block';
 
-        // ضبط الوقت
         if (!localStorage.getItem('examEndTime')) {
             const EXAM_MINUTES = 30;
             let endTime = Date.now() + (EXAM_MINUTES * 60 * 1000);
             localStorage.setItem('examEndTime', endTime);
         }
         
-        // ماركر لبداية الامتحان
         localStorage.setItem('examStarted', 'true');
-        
         initTimer();
     }
 
@@ -413,6 +484,7 @@
 
         document.getElementById('quizForm').classList.add('disabled');
         document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('retakeBtn').style.display = 'block';
 
         allQuestions.forEach(item => {
             const selected = document.querySelector(`input[name="q${item.id}"]:checked`);
@@ -437,23 +509,75 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    /* --- وظائف كلمة السر الجديدة --- */
+    function openPwModal() {
+        document.getElementById('pwModal').style.display = 'flex';
+        document.getElementById('retakePassword').focus();
+    }
+
+    function closePwModal() {
+        document.getElementById('pwModal').style.display = 'none';
+        const input = document.getElementById('retakePassword');
+        input.value = "";
+        input.className = "pw-input";
+    }
+
+    function checkRetakePassword() {
+        const input = document.getElementById('retakePassword');
+        const password = input.value;
+
+        if (password === "unit7-1") {
+            input.className = "pw-input success";
+            setTimeout(() => {
+                resetExam();
+                closePwModal();
+            }, 600);
+        } else {
+            input.classList.add('error');
+            setTimeout(() => input.classList.remove('error'), 400);
+            input.value = "";
+        }
+    }
+
+    function resetExam() {
+        localStorage.removeItem('examEndTime');
+        localStorage.removeItem('examFinished');
+        localStorage.removeItem('examStarted');
+
+        document.getElementById('quizForm').classList.remove('disabled');
+        document.getElementById('submitBtn').style.display = 'block';
+        document.getElementById('retakeBtn').style.display = 'none';
+        document.getElementById('scoreDisplay').style.display = 'none';
+
+        document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+        document.querySelectorAll('.option-item').forEach(label => {
+            label.classList.remove('is-correct');
+            label.classList.remove('is-wrong');
+        });
+
+        document.getElementById('examWrapper').style.display = 'none';
+        document.getElementById('startScreen').style.display = 'block';
+        
+        document.getElementById('timer').innerHTML = "30:00";
+        document.getElementById('timerBox').classList.remove('timer-warning');
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     window.onload = () => {
         renderQuestions(readingData, 'readingQuestionsSection');
         renderQuestions(grammarData, 'grammarQuestionsSection');
         
-        // إذا كان الطالب قد أنهى الامتحان مسبقاً، أظهر له النتيجة مباشرة
         if (localStorage.getItem('examFinished')) {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('examWrapper').style.display = 'block';
             setTimeout(gradeQuiz, 300);
         } 
-        // إذا كان الطالب قد بدأ الامتحان وأغلق الصفحة، أرجعه للامتحان مباشرة
         else if (localStorage.getItem('examStarted')) {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('examWrapper').style.display = 'block';
             initTimer();
         }
-        // غير ذلك، تظهر شاشة البداية
     };
 </script>
 
