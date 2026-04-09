@@ -216,6 +216,7 @@
 
 <div id="studentsResultsScreen" class="start-screen" style="display: none; max-width: 800px;">
     <h1>نتائج الطلاب المسجلة</h1>
+    <div id="loadingStatus" style="padding: 10px; font-weight: bold; color: var(--primary); display:none;">جاري تحميل النتائج...</div>
     <div class="results-table-container" id="resultsTableContainer"></div>
     <div style="margin-top: 25px;">
         <button class="start-btn btn-gray" onclick="backToTeacherDashboard()">الرجوع للوحة التحكم</button>
@@ -286,6 +287,8 @@
 </div>
 
 <script>
+    const API_URL = 'https://sheetdb.io/api/v1/amdsjbd2qffaz';
+
     const readingData = [
         { id: 1, q: "What inspired Vern Jones to want to climb Mount Kilimanjaro?", options: ["Reading books about the Serengeti.", "Seeing Mount Kilimanjaro rise above the Serengeti.", "Watching a documentary about Kilimanjaro.", "Hearing stories from other climbers."], ans: "B" },
         { id: 2, q: "At what age did Vern Jones fulfill his dream of climbing Mount Kilimanjaro?", options: ["42", "52", "62", "72"], ans: "C" },
@@ -348,66 +351,67 @@
     function logoutTeacher() { hideAllScreens(); document.getElementById('selectionScreen').style.display = 'block'; }
     function backToTeacherDashboard() { hideAllScreens(); document.getElementById('teacherDashboard').style.display = 'block'; }
 
-    function showStudentsResults() {
+    // --- عرض النتائج من السيرفر مباشرة ---
+    async function showStudentsResults() {
         hideAllScreens();
         document.getElementById('studentsResultsScreen').style.display = 'block';
         const container = document.getElementById('resultsTableContainer');
-        let results = JSON.parse(localStorage.getItem('studentResults') || '[]');
-        if (results.length === 0) {
-            container.innerHTML = '<p style="padding: 20px; color: #7f8c8d; text-align: center;">لا يوجد نتائج للطلاب حتى الآن.</p>';
-        } else {
-            let html = '<table class="results-table"><tr><th>اسم الطالب</th><th>النتيجة</th><th>التاريخ والوقت</th></tr>';
-            results.reverse().forEach(res => {
-                html += `<tr><td>${res.name}</td><td style="font-weight: bold; color: #27ae60;">${res.score} / 20</td><td style="direction: ltr; text-align: right;">${res.date}</td></tr>`;
-            });
-            html += '</table>';
-            container.innerHTML = html;
+        const status = document.getElementById('loadingStatus');
+        status.style.display = 'block';
+        container.innerHTML = '';
+
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            status.style.display = 'none';
+
+            if (data.length === 0) {
+                container.innerHTML = '<p style="padding: 20px; color: #7f8c8d; text-align: center;">لا يوجد نتائج حالياً في ملف الإكسل.</p>';
+            } else {
+                let html = '<table class="results-table"><tr><th>اسم الطالب</th><th>النتيجة</th><th>التاريخ والوقت</th></tr>';
+                data.reverse().forEach(res => {
+                    html += `<tr><td>${res['اسم الطالب']}</td><td style="font-weight: bold; color: #27ae60;">${res['النتيجة']} / 20</td><td style="direction: ltr; text-align: right;">${res['التاريخ والوقت']}</td></tr>`;
+                });
+                html += '</table>';
+                container.innerHTML = html;
+            }
+        } catch (e) {
+            status.innerText = "خطأ في الاتصال بالسيرفر.";
         }
     }
 
-    // --- دالة إرسال البيانات إلى Google Sheets عبر SheetDB ---
+    // --- إرسال النتيجة للسيرفر ---
     async function sendResultToSheet(name, score, date) {
         try {
-            await fetch('https://sheetdb.io/api/v1/amdsjbd2qffaz', {
+            await fetch(API_URL, {
                 method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    data: [
-                        {
-                            'اسم الطالب': name,
-                            'النتيجة': score,
-                            'التاريخ والوقت': date
-                        }
-                    ]
+                    data: [{ 'اسم الطالب': name, 'النتيجة': score, 'التاريخ والوقت': date }]
                 })
             });
-        } catch (error) {
-            console.error('Error sending result to online sheet:', error);
+        } catch (e) { console.error(e); }
+    }
+
+    // --- مسح جميع النتائج نهائياً من الإكسل ---
+    async function clearAllResults() {
+        if (confirm("هل أنت متأكد من مسح جميع النتائج من ملف Google Sheets نهائياً؟")) {
+            try {
+                const response = await fetch(`${API_URL}/all`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert("تم مسح جميع البيانات بنجاح.");
+                    showStudentsResults();
+                } else {
+                    alert("فشل المسح. تأكد من إعدادات SheetDB.");
+                }
+            } catch (e) { alert("خطأ في الاتصال."); }
         }
     }
 
     function saveStudentResult(name, score) {
-        let results = JSON.parse(localStorage.getItem('studentResults') || '[]');
         let dateObj = new Date();
         let formattedDate = dateObj.toLocaleDateString() + ' - ' + dateObj.toLocaleTimeString();
-        
-        // حفظ محلياً
-        results.push({ name: name, score: score, date: formattedDate });
-        localStorage.setItem('studentResults', JSON.stringify(results));
-        
-        // إرسال للأستاذ عبر API
         sendResultToSheet(name, score, formattedDate);
-    }
-
-    function clearAllResults() {
-        if(confirm("تحذير: هل أنت متأكد من مسح جميع نتائج الطلاب نهائياً؟")) {
-            localStorage.removeItem('studentResults');
-            alert("تم مسح جميع النتائج.");
-            showStudentsResults();
-        }
     }
 
     function resetExamForStudents() {
