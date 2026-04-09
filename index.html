@@ -365,12 +365,41 @@
         }
     }
 
+    // --- دالة إرسال البيانات إلى Google Sheets عبر SheetDB ---
+    async function sendResultToSheet(name, score, date) {
+        try {
+            await fetch('https://sheetdb.io/api/v1/amdsjbd2qffaz', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: [
+                        {
+                            'اسم الطالب': name,
+                            'النتيجة': score,
+                            'التاريخ والوقت': date
+                        }
+                    ]
+                })
+            });
+        } catch (error) {
+            console.error('Error sending result to online sheet:', error);
+        }
+    }
+
     function saveStudentResult(name, score) {
         let results = JSON.parse(localStorage.getItem('studentResults') || '[]');
         let dateObj = new Date();
         let formattedDate = dateObj.toLocaleDateString() + ' - ' + dateObj.toLocaleTimeString();
+        
+        // حفظ محلياً
         results.push({ name: name, score: score, date: formattedDate });
         localStorage.setItem('studentResults', JSON.stringify(results));
+        
+        // إرسال للأستاذ عبر API
+        sendResultToSheet(name, score, formattedDate);
     }
 
     function clearAllResults() {
@@ -484,7 +513,7 @@
                     document.getElementById('teacherDashboard').style.display = 'block'; 
                 } 
                 else if (passwordContext === "retake_exam") { 
-                    resetExam(); // هذه الوظيفة ترجعك لصفحة اختيار الصفة
+                    resetExam(); 
                 }
                 closePwModal();
             }, 600);
@@ -511,11 +540,10 @@
         document.getElementById('timerBox').classList.remove('timer-warning');
     }
 
-    // تم تعديل هذه الوظيفة لتعيدك لصفحة اختيار الصفة
     function resetExam() {
         resetExamVariables();
         hideAllScreens();
-        document.getElementById('selectionScreen').style.display = 'block'; // الرجوع لصفحة "الأستاذ / الطالب"
+        document.getElementById('selectionScreen').style.display = 'block'; 
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
