@@ -296,6 +296,9 @@
 
             <h2 class="section-header">Question Two: Reported Speech Mastery</h2>
             <div id="grammarQuestionsSection"></div>
+
+            <h2 class="section-header">Question Three: Vocabulary </h2>
+<div id="vocabQuestionsSection"></div>
         </form>
 
         <button type="button" id="submitBtn" class="submit-btn" onclick="gradeQuiz(false)">Finish & Calculate Score</button>
@@ -331,7 +334,13 @@
         { id: 19, q: "\"I can help you tomorrow.\"", options: ["She said that she could help me tomorrow.", "She said that she can help me tomorrow.", "She said that she was helping me tomorrow.", "She said that she could help me the next day."], ans: "D" },
         { id: 20, q: "\"You should go to bed early.\"", options: ["She told me that I should go to bed early.", "She told me that you should go to bed early.", "She told me that I have to go to bed early.", "She told me that I went to bed early."], ans: "A" }
     ];
-
+const vocabData = [
+    { id: 21, q: "promotes sustainable development that does not harm the.........", options: ["environment", "facilities", "homes", "opportunities"], ans: "A" },
+    { id: 22, q: "helps to move people out of poverty", options: ["gender equality, unemployment", "environmental problems", "health", "poverty"], ans: "D" },
+    { id: 23, q: "aims to give better work opportunities to women and young people", options: ["gender equality, unemployment", "immigration,homelessness,unemployment", "environmental problems", "health"], ans: "A" },
+    { id: 24, q: "aims to give better work...........to women and young people", options: ["environment", "facilities", "homes", "opportunities"], ans: "D" },
+    { id: 25, q: "helps to improve health.........", options: ["environment", "facilities", "homes", "opportunities"], ans: "B" }
+];
     function renderQuestions(data, containerId) {
         const container = document.getElementById(containerId);
         data.forEach(item => {
@@ -387,7 +396,7 @@
             } else {
                 let html = '<table class="results-table"><tr><th>اسم الطالب</th><th>النتيجة</th><th>التاريخ والوقت</th></tr>';
                 data.reverse().forEach(res => {
-                    html += `<tr><td>${res['اسم الطالب']}</td><td style="font-weight: bold; color: #27ae60;">${res['النتيجة']} / 20</td><td style="direction: ltr; text-align: right;">${res['التاريخ والوقت']}</td></tr>`;
+                    html += `<tr><td>${res['اسم الطالب']}</td><td style="font-weight: bold; color: #27ae60;">${res['النتيجة']} / 25</td><td style="direction: ltr; text-align: right;">${res['التاريخ والوقت']}</td></tr>`;
                 });
                 html += '</table>';
                 container.innerHTML = html;
@@ -489,7 +498,7 @@
         clearInterval(countdown);
         localStorage.setItem('examFinished', 'true');
         let score = 0;
-        const allQuestions = [...readingData, ...grammarData];
+       const allQuestions = [...readingData, ...grammarData, ...vocabData];
         document.getElementById('quizForm').classList.add('disabled');
         document.getElementById('submitBtn').style.display = 'none';
         document.getElementById('retakeBtn').style.display = 'block';
@@ -513,7 +522,7 @@
 
         const scoreDiv = document.getElementById('scoreDisplay');
         scoreDiv.style.display = 'block';
-        scoreDiv.innerHTML = `النتيجة: ${score} / 20`;
+        scoreDiv.innerHTML = `النتيجة: ${score} / 25`;
         if(!localStorage.getItem('scoreSaved')) {
             saveStudentResult(studentName, score);
             localStorage.setItem('scoreSaved', 'true');
@@ -569,8 +578,9 @@
     }
 
     window.onload = () => {
-        renderQuestions(readingData, 'readingQuestionsSection');
-        renderQuestions(grammarData, 'grammarQuestionsSection');
+    renderQuestions(readingData, 'readingQuestionsSection');
+    renderQuestions(grammarData, 'grammarQuestionsSection');
+    renderQuestions(vocabData, 'vocabQuestionsSection'); 
         if (localStorage.getItem('examFinished')) {
             hideAllScreens(); document.getElementById('examWrapper').style.display = 'block'; setTimeout(() => gradeQuiz(true), 300);
         } else if (localStorage.getItem('examStarted')) {
