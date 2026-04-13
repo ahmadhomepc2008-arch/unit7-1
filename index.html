@@ -189,22 +189,20 @@
         .results-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
         .results-table tr:hover { background: #f9f9f9; }
 
-/* تنسيق شاشة القفل الإجباري */
-#lockScreen {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.98); /* خلفية سوداء شبه كاملة */
-    z-index: 10000;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    text-align: center;
-}
-        
+        #lockScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -257,6 +255,12 @@
     <h2>Unit Seven Exam: English Language</h2>
     <p>إعداد الأستاذ: أسامة فودة</p>
     <p style="color: #e74c3c; font-weight: bold;">Time allowed: 30 Minutes</p>
+    
+    <div class="student-info-box" style="margin-top: 20px;">
+        <label for="studentName">اسم الطالب (الرباعي):</label>
+        <input type="text" id="studentName" placeholder="أدخل اسمك هنا..." required>
+    </div>
+    
     <button class="start-btn" onclick="startExam()">Start Exam / ابدأ الامتحان</button>
 </div>
 
@@ -278,27 +282,17 @@
         <div id="scoreDisplay" class="result-sticky"></div>
 
         <form id="quizForm">
-            <div class="student-info-box">
-                <label for="studentName">اسم الطالب (الرباعي):</label>
-                <input type="text" id="studentName" placeholder="أدخل اسمك هنا..." required>
-            </div>
+            <div style="text-align: right; margin-bottom: 20px; font-weight: bold;" id="displayName"></div>
 
             <h2 class="section-header">Question One: Read the text, then answer the questions</h2>
-            <div class="passage-box">
-                As a teenager, the sight of Mount Kilimanjaro rising majestically above the Serengeti made Vern Jones desperately want to climb it. 
-                Finally in 2014, at the age of 62, Vern finally realised his dream while accompanied by his daughters and their husbands. 
-                However, he was all too aware that he couldn’t have succeeded without the help of the guides. 
-                These young men, who are often ill-equipped themselves and poorly paid, work daily in dangerous conditions to help climbers achieve their goals. 
-                Vern’s response was to found Kili Summit Club which raises money to help the guides from the proceeds of mountain gear sales. 
-                They receive footwear and equipment to help them with their work, as well as commission from sales, allowing climbers to support them long after their adventure is over.
-            </div>
+            <div class="passage-box"></div>
             <div id="readingQuestionsSection"></div>
 
             <h2 class="section-header">Question Two: Reported Speech Mastery</h2>
             <div id="grammarQuestionsSection"></div>
 
             <h2 class="section-header">Question Three: Vocabulary </h2>
-<div id="vocabQuestionsSection"></div>
+            <div id="vocabQuestionsSection"></div>
         </form>
 
         <button type="button" id="submitBtn" class="submit-btn" onclick="gradeQuiz(false)">Finish & Calculate Score</button>
@@ -306,62 +300,144 @@
     </div>
 </div>
 
+<div id="lockScreen">
+    <div class="pw-card" style="background: white; color: #333;">
+        <h2 style="color: var(--error);">⚠️ تم قفل الامتحان!</h2>
+        <p>لقد حاولت مغادرة الصفحة أو فتح نافذة أخرى.</p>
+        <p><b>يرجى استدعاء الأستاذ لفك القفل.</b></p>
+        <input type="password" id="lockPassword" class="pw-input" placeholder="كلمة سر الأستاذ">
+        <button class="start-btn" onclick="unlockExam()">فك القفل</button>
+    </div>
+</div>
+
 <script>
     const API_URL = 'https://sheetdb.io/api/v1/amdsjbd2qffaz';
 
-    const readingData = [
-        { id: 1, q: "What inspired Vern Jones to want to climb Mount Kilimanjaro?", options: ["Reading books about the Serengeti.", "Seeing Mount Kilimanjaro rise above the Serengeti.", "Watching a documentary about Kilimanjaro.", "Hearing stories from other climbers."], ans: "B" },
-        { id: 2, q: "At what age did Vern Jones fulfill his dream of climbing Mount Kilimanjaro?", options: ["42", "52", "62", "72"], ans: "C" },
-        { id: 3, q: "Who accompanied Vern Jones on his climb in 2014?", options: ["His friends.", "His daughters and their husbands.", "His climbing club members.", "His colleagues from work."], ans: "B" },
-        { id: 4, q: "What did Vern Jones realize about his climb?", options: ["It was the easiest thing he had ever done.", "It was possible only because of the guides.", "It was a solo accomplishment.", "It didn’t require any special skills."], ans: "B" },
-        { id: 5, q: "What challenges do the guides face while working?", options: ["They are overpaid but poorly trained.", "They work in dangerous conditions with little pay.", "They are well-equipped but underappreciated.", "They don’t face any significant challenges."], ans: "B" },
-        { id: 6, q: "What is the Kili Summit Club?", options: ["A hiking group for Mount Kilimanjaro enthusiasts.", "A club for climbers to share their experiences.", "A foundation that raises money to help Kilimanjaro guides.", "A store that sells climbing gear at a discount."], ans: "C" },
-        { id: 7, q: "How does the Kili Summit Club support the guides?", options: ["By teaching them new climbing techniques.", "By giving them free climbing lessons.", "By providing footwear, equipment, and commissions from sales.", "By organizing more climbing trips for them."], ans: "C" },
-        { id: 8, q: "What is one way climbers can continue supporting the guides after their climb?", options: ["Donating directly to the guides' families.", "Buying mountain gear from the Kili Summit Club.", "Volunteering to become guides themselves.", "Sponsoring other climbers."], ans: "B" },
-        { id: 9, q: "What does the phrase 'ill-equipped' mean in the text?", options: ["Lacking the proper tools or resources.", "Unable to climb effectively.", "Fully prepared for the climb.", "Skilled but inexperienced."], ans: "A" },
-        { id: 10, q: "What does the Kili Summit Club provide besides equipment?", options: ["Free climbing tours.", "Financial advice for guides.", "A sense of community among climbers.", "Commission from sales of mountain gear."], ans: "D" }
+    const passagesPool = [
+        {
+            title: "Passage 1: Mount Kilimanjaro",
+            text: "As a teenager, the sight of Mount Kilimanjaro rising majestically above the Serengeti made Vern Jones desperately want to climb it. Finally in 2014, at the age of 62, Vern finally realised his dream while accompanied by his daughters and their husbands. However, he was all too aware that he couldn’t have succeeded without the help of the guides. These young men, who are often ill-equipped themselves and poorly paid, work daily in dangerous conditions to help climbers achieve their goals. Vern’s response was to found Kili Summit Club which raises money to help the guides from the proceeds of mountain gear sales. They receive footwear and equipment to help them with their work, as well as commission from sales, allowing climbers to support them long after their adventure is over.",
+            questions: [
+                { id: 1, q: "What inspired Vern Jones to want to climb Mount Kilimanjaro?", options: ["Reading books about the Serengeti.", "Seeing Mount Kilimanjaro rise above the Serengeti.", "Watching a documentary about Kilimanjaro.", "Hearing stories from other climbers."], ans: "B" },
+                { id: 2, q: "At what age did Vern Jones fulfill his dream of climbing Mount Kilimanjaro?", options: ["42", "52", "62", "72"], ans: "C" },
+                { id: 3, q: "Who accompanied Vern Jones on his climb in 2014?", options: ["His friends.", "His daughters and their husbands.", "His climbing club members.", "His colleagues from work."], ans: "B" },
+                { id: 4, q: "What did Vern Jones realize about his climb?", options: ["It was the easiest thing he had ever done.", "It was possible only because of the guides.", "It was a solo accomplishment.", "It didn’t require any special skills."], ans: "B" },
+                { id: 5, q: "What challenges do the guides face while working?", options: ["They are overpaid but poorly trained.", "They work in dangerous conditions with little pay.", "They are well-equipped but underappreciated.", "They don’t face any significant challenges."], ans: "B" },
+                { id: 6, q: "What is the Kili Summit Club?", options: ["A hiking group for Mount Kilimanjaro enthusiasts.", "A club for climbers to share their experiences.", "A foundation that raises money to help Kilimanjaro guides.", "A store that sells climbing gear at a discount."], ans: "C" },
+                { id: 7, q: "How does the Kili Summit Club support the guides?", options: ["By teaching them new climbing techniques.", "By giving them free climbing lessons.", "By providing footwear, equipment, and commissions from sales.", "By organizing more climbing trips for them."], ans: "C" },
+                { id: 8, q: "What is one way climbers can continue supporting the guides after their climb?", options: ["Donating directly to the guides' families.", "Buying mountain gear from the Kili Summit Club.", "Volunteering to become guides themselves.", "Sponsoring other climbers."], ans: "B" },
+                { id: 9, q: "What does the phrase 'ill-equipped' mean in the text?", options: ["Lacking the proper tools or resources.", "Unable to climb effectively.", "Fully prepared for the climb.", "Skilled but inexperienced."], ans: "A" },
+                { id: 10, q: "What does the Kili Summit Club provide besides equipment?", options: ["Free climbing tours.", "Financial advice for guides.", "A sense of community among climbers.", "Commission from sales of mountain gear."], ans: "D" }
+            ]
+        },
+        {
+            title: "Passage 2: Sister Pie",
+            text: "In the Autumn of 2012, Lisa Ludwinski started her business from her parents’ kitchen when she made and sold 40 pies. The reaction to them was so positive that she kept going. What followed was an industrious few years. Lisa took a business class, took on an intern and raised money for her own bakery in Detroit, Michigan. She even did a 24-hour fund-raising activity, bringing in $26,593, which allowed her to open Sister Pie in April, 2015. Integral to Lisa’s business philosophy is making Sister Pie a part of the community. Due to this, she operates a ‘Pie it Forward’ system where customers can purchase a coupon. This is then kept on the wall and can be used by strangers, who may not have enough money, to enjoy a slice of the delicious pies.",
+            questions: [
+                { id: 1, q: "Where did Lisa Ludwinski start her business?", options: ["In her bakery in Detroit, Michigan", "In her parents’ kitchen", "In a rented kitchen in Michigan", "In a business class"], ans: "B" },
+                { id: 2, q: "How many pies did Lisa make and sell when she started her business?", options: ["20 pies", "30 pies", "40 pies", "50 pies"], ans: "C" },
+                { id: 3, q: "What helped Lisa realize her pies were successful?", options: ["A recommendation from a chef", "Positive reactions from people", "Support from her business class", "High profits from her first sale"], ans: "B" },
+                { id: 4, q: "When did Lisa open her bakery, Sister Pie?", options: ["2012", "2013", "2014", "2015"], ans: "D" },
+                { id: 5, q: "How much money did Lisa raise in her 24-hour fundraising activity?", options: ["$20,000", "$26,593", "$30,000", "$35,000"], ans: "B" },
+                { id: 6, q: "What is Lisa’s philosophy regarding Sister Pie?", options: ["To make it a part of the community", "To sell as many pies as possible", "To compete with other bakeries", "To create luxury desserts"], ans: "A" },
+                { id: 7, q: "What is the purpose of the 'Pie it Forward' system?", options: ["To increase sales during holidays", "To allow customers to try new flavors", "To help people who may not have enough money", "To raise funds for Lisa’s bakery"], ans: "C" },
+                { id: 8, q: "What can customers purchase in the 'Pie it Forward' system?", options: ["A slice of pie for themselves", "A coupon for a stranger", "A pie-making class", "A recipe book"], ans: "B" },
+                { id: 9, q: "Where are the 'Pie it Forward' coupons kept?", options: ["In a special box at the counter", "On a board on the wall", "In a jar near the register", "In Lisa’s office"], ans: "B" },
+                { id: 10, q: "What does the 'Pie it Forward' system promote?", options: ["Generosity and kindness", "Marketing and advertising", "Exclusive membership rewards", "Advanced baking techniques"], ans: "A" }
+            ]
+        },
+        {
+            title: "Passage 3: Tracy Warshal",
+            text: "In 2015, Tracy Warshal was in the queue at a busy shop during the holiday season when the man in front of her realised he’d forgotten his wallet. Tracy paid for the stranger’s milk and other items, and after thanking her and asking her name, he was on his way. She thought no more of it until a month later when she was contacted by colleagues at the cancer charity where she worked. They told her that the man, who wished to remain anonymous, wanted to donate $10,000 to the foundation in her name. As she was wearing a T-shirt with the charity’s name on it at the shop, he was able to track her down. She told reporters, ‘I’m just so excited that one small gesture made a huge difference and impact on a lot of people. I hope it makes some people think twice about doing something small to somebody.’",
+            questions: [
+                { id: 1, q: "What prompted Tracy Warshal to pay for the stranger's items?", options: ["She knew the man personally.", "She saw the man forget his wallet.", "She was asked to pay by the shop staff.", "She wanted to advertise the charity she worked for."], ans: "B" },
+                { id: 2, q: "What items did Tracy pay for?", options: ["Milk and other items.", "Only milk.", "Groceries worth $10,000.", "The man’s entire shopping cart."], ans: "A" },
+                { id: 3, q: "How did the man express his gratitude to Tracy initially?", options: ["By donating money immediately.", "By thanking her and asking for her name.", "By giving her his wallet.", "By writing a letter to the charity."], ans: "B" },
+                { id: 4, q: "How did the man find Tracy later?", options: ["By contacting the shop directly.", "Through her social media profile.", "By noticing her T-shirt with the charity’s name.", "By asking other shoppers at the store."], ans: "C" },
+                { id: 5, q: "What did the man do to show his appreciation for Tracy’s gesture?", options: ["He gave her a $10,000 check directly.", "He anonymously donated $10,000 to her charity.", "He invited her to a charity dinner.", "He publicly announced her good deed."], ans: "B" },
+                { id: 6, q: "Why was Tracy’s gesture significant to her?", options: ["It taught her the value of charity work.", "It made her famous in her community.", "It inspired others to do small acts of kindness.", "It resulted in her promotion at work."], ans: "C" },
+                { id: 7, q: "What was Tracy’s reaction when she learned about the donation?", options: ["She was excited about the positive impact it would have.", "She felt uncomfortable about the publicity.", "She decided to repay the man.", "She was surprised that the man remembered her."], ans: "A" },
+                { id: 8, q: "Why did the man remain anonymous?", options: ["He didn’t want Tracy to feel indebted.", "He preferred to focus on the act of kindness rather than recognition.", "He was legally required to stay anonymous.", "He didn’t want the media to find him."], ans: "B" },
+                { id: 9, q: "What is the main message Tracy hopes others take from her story?", options: ["Small gestures can have a big impact.", "Charity work is rewarding.", "People should always pay it forward.", "Acts of kindness lead to financial gain."], ans: "A" },
+                { id: 10, q: "What season did this incident occur?", options: ["Summer", "Holiday season", "Spring", "Autumn"], ans: "B" }
+            ]
+        }
     ];
 
-    const grammarData = [
-        { id: 11, q: "\"He works in a bank.\"", options: ["She said that he works in a bank.", "She said that he worked in a bank.", "She said that he is working in a bank.", "She said that he was working in a bank."], ans: "B" },
-        { id: 12, q: "\"We went out last night.\"", options: ["She told me that they went out last night.", "She told me that they had gone out last night.", "She told me that they had gone out the night before.", "She told me that they were going out the night before."], ans: "C" },
-        { id: 13, q: "\"I'm coming!\"", options: ["She said that she is coming.", "She said that she was coming.", "She said that she has been coming.", "She said that she would come."], ans: "B" },
-        { id: 14, q: "\"I was waiting for the bus when he arrived.\"", options: ["She told me that she was waiting for the bus when he arrived.", "She told me that she had been waiting for the bus when he arrived.", "She told me that she is waiting for the bus when he arrived.", "She told me that she had waited for the bus when he arrived."], ans: "B" },
-        { id: 15, q: "\"I'd never been there before.\"", options: ["She said that she never went there before.", "She said that she had never been there before.", "She said that she has never been there before.", "She said that she never was there before."], ans: "B" },
-        { id: 16, q: "\"I didn't go to the party.\"", options: ["She told me that she didn't go to the party.", "She told me that she doesn't go to the party.", "She hadn't gone to the party.", "She told me that she hasn't gone to the party."], ans: "C" },
-        { id: 17, q: "\"Lucy'll come later.\"", options: ["She said that Lucy would come later.", "She said that Lucy will come later.", "She said that Lucy is coming later.", "She said that Lucy comes later."], ans: "A" },
-        { id: 18, q: "\"He hasn't eaten breakfast.\"", options: ["She told me that he didn't eat breakfast.", "She told me that he hasn't eaten breakfast.", "She told me that he hadn't eaten breakfast.", "She told me that he won't eat breakfast."], ans: "C" },
-        { id: 19, q: "\"I can help you tomorrow.\"", options: ["She said that she could help me tomorrow.", "She said that she can help me tomorrow.", "She said that she was helping me tomorrow.", "She said that she could help me the next day."], ans: "D" },
-        { id: 20, q: "\"You should go to bed early.\"", options: ["She told me that I should go to bed early.", "She told me that you should go to bed early.", "She told me that I have to go to bed early.", "She told me that I went to bed early."], ans: "A" }
+    const grammarPool = [
+        { id: 11, q: "He works in a bank.", options: ["She said that he works in a bank.", "She said that he worked in a bank.", "She said that he is working in a bank.", "She said that he was working in a bank."], ans: "B" },
+        { id: 12, q: "We went out last night.", options: ["She told me that they went out last night.", "She told me that they had gone out last night.", "She told me that they had gone out the night before.", "She told me that they were going out the night before."], ans: "C" },
+        { id: 13, q: "I'm coming!", options: ["She said that she is coming.", "She said that she was coming.", "She said that she has been coming.", "She said that she would come."], ans: "B" },
+        { id: 14, q: "I was waiting for the bus when he arrived.", options: ["She told me that she was waiting for the bus when he arrived.", "She told me that she had been waiting for the bus when he arrived.", "She told me that she is waiting for the bus when he arrived.", "She told me that she had waited for the bus when he arrived."], ans: "B" },
+        { id: 15, q: "I'd never been there before.", options: ["She said that she never went there before.", "She said that she had never been there before.", "She said that she has never been there before.", "She said that she never was there before."], ans: "B" },
+        { id: 16, q: "I didn't go to the party.", options: ["She told me that she didn't go to the party.", "She told me that she doesn't go to the party.", "She told me that she hadn hadn't gone to the party.", "She told me that she hasn't gone to the party."], ans: "C" },
+        { id: 17, q: "Lucy'll come later.", options: ["She said that Lucy would come later.", "She said that Lucy will come later.", "She said that Lucy is coming later.", "She said that Lucy comes later."], ans: "A" },
+        { id: 18, q: "He hasn't eaten breakfast.", options: ["She told me that he didn't eat breakfast.", "She told me that he hasn't eaten breakfast.", "She told me that he hadn't eaten breakfast.", "She told me that he won't eat breakfast."], ans: "C" },
+        { id: 19, q: "I can help you tomorrow.", options: ["She said that she could help me tomorrow.", "She said that she can help me tomorrow.", "She said that she was helping me tomorrow.", "She said that she could help me the next day."], ans: "D" },
+        { id: 20, q: "You should go to bed early.", options: ["She told me that I should go to bed early.", "She told me that you should go to bed early.", "She told me that I have to go to bed early.", "She told me that I went to bed early."], ans: "A" },
+        { id: 21, q: "Mazen agreed …….the old man was discriminated against.", options: ["that", "to", "she", "if"], ans: "A" },
+        { id: 22, q: "The man at the information desk advised …… to leave our phone number.", options: ["that", "we", "us", "him"], ans: "C" },
+        { id: 23, q: "Nader offered ………... lend Maher his car for the weekend.", options: ["to", "for", "he would", "that"], ans: "A" },
+        { id: 24, q: "The musician objected ……. playing only his hits at the concert.", options: ["that", "to", "for", "by"], ans: "B" },
+        { id: 25, q: "The police praised Imad …………saving the man’s life.", options: ["on", "of", "for", "with"], ans: "C" },
+        { id: 26, q: "The students showed great ....... during the lecture.", options: ["concentrate", "concentration", "concentrated", "concentrating"], ans: "B" },
+        { id: 27, q: "It is important to ....... between facts and opinions.", options: ["distinction", "distinguish", "distinguishable", "distinguishably"], ans: "B" },
+        { id: 28, q: "Jordanian people are famous for their ....... .", options: ["hospitable", "hospitality", "hospitably", "hospitalize"], ans: "B" },
+        { id: 29, q: "The company needs to ....... its production process.", options: ["modern", "modernize", "modernization", "modernly"], ans: "B" },
+        { id: 30, q: "Eating healthy food is ....... for your health.", options: ["benefit", "beneficial", "beneficially", "beneficiary"], ans: "B" },
+        { id: 31, q: "The artist's work is very ....... .", options: ["imagination", "imagine", "imaginative", "imaginatively"], ans: "C" },
+        { id: 32, q: "We should ....... the importance of education.", options: ["emphasis", "emphasize", "emphatic", "emphatically"], ans: "B" },
+        { id: 33, q: "The new project was a huge ....... .", options: ["succeed", "success", "successful", "successfully"], ans: "B" },
+        { id: 34, q: "He is a very ....... person; he always helps others.", options: ["generosity", "generous", "generously", "generously"], ans: "B" },
+        { id: 35, q: "The weather conditions are ....... today.", options: ["predict", "prediction", "predictable", "predictably"], ans: "C" },
+        { id: 36, q: "The government is trying to solve the ....... problem.", options: ["economy", "economic", "economically", "economist"], ans: "B" },
+        { id: 37, q: "You need to ....... your password to access the site.", options: ["identity", "identify", "identification", "identifiable"], ans: "B" },
+        { id: 38, q: "The flowers smell ....... in the morning.", options: ["beauty", "beautiful", "beautifully", "beautify"], ans: "B" },
+        { id: 39, q: "We must protect the ....... environment.", options: ["nature", "natural", "naturally", "naturalize"], ans: "B" },
+        { id: 40, q: "The teacher gave us clear ....... for the project.", options: ["instruct", "instruction", "instructive", "instructively"], ans: "B" }
     ];
-const vocabData = [
-    { id: 21, q: "promotes sustainable development that does not harm the.........", options: ["environment", "facilities", "homes", "opportunities"], ans: "A" },
-    { id: 22, q: "helps to move people out of poverty", options: ["gender equality, unemployment", "environmental problems", "health", "poverty"], ans: "D" },
-    { id: 23, q: "aims to give better work opportunities to women and young people", options: ["gender equality, unemployment", "immigration,homelessness,unemployment", "environmental problems", "health"], ans: "A" },
-    { id: 24, q: "aims to give better work...........to women and young people", options: ["environment", "facilities", "homes", "opportunities"], ans: "D" },
-    { id: 25, q: "helps to improve health.........", options: ["environment", "facilities", "homes", "opportunities"], ans: "B" }
-];
+
+    const vocabPool = [
+        { id: 41, q: "His parents said he wasn’t working hard enough and his terrible exam results have ........... them right.", options: ["Different angle", "Bright ideas", "Prove something right", "Share your thoughts"], ans: "C" },
+        { id: 42, q: "Does anyone have any …………. ideas for Maha’s surprise family party?", options: ["Different angle", "Bright ideas", "Prove something right", "Share your thoughts"], ans: "B" },
+        { id: 43, q: "To find a solution I think we need to look at the problem from a different........", options: ["Different angle", "Bright ideas", "Prove something right", "Share your thoughts"], ans: "A" },
+        { id: 44, q: "Please ……………..your thoughts on what you think went wrong.", options: ["Different angle", "Bright ideas", "Prove something right", "Share your thoughts"], ans: "D" },
+        { id: 45, q: "Being busy or working very hard", options: ["industrious", "commission", "intern", "ill-equipped"], ans: "A" },
+        { id: 46, q: "Money that is paid to a salesperson for selling something", options: ["commission", "integral", "foundation", "ill-equipped"], ans: "B" },
+        { id: 47, q: "an organisation started for a specific purpose, such as research", options: ["commission", "integral", "foundation", "ill-equipped"], ans: "C" },
+        { id: 48, q: "Not having the correct tools or skills to do something", options: ["ill-equipped", "anonymous", "proceeds", "foundation"], ans: "A" },
+        { id: 49, q: "referring to someone whose name is not known or not made public", options: ["foundation", "intern", "proceeds", "anonymous"], ans: "D" },
+        { id: 50, q: "A (usually young) person who does a job to get experience of it and to learn", options: ["intern", "integral", "industrious", "foundation"], ans: "A" },
+        { id: 51, q: "Monkeys live ……….. fruit and nuts", options: ["on", "in", "out", "with"], ans: "A" },
+        { id: 52, q: "Monkeys live ……….. trees.", options: ["on", "in", "out", "with"], ans: "B" },
+        { id: 53, q: "We eat ……………… soup of a bowl.", options: ["on", "in", "out", "with"], ans: "C" },
+        { id: 54, q: "We need to deal ……. the climate crisis.", options: ["on", "in", "out", "with"], ans: "D" },
+        { id: 55, q: "Very important to, or an essential part of, something", options: ["integral", "ill-equipped", "anonymous", "proceeds"], ans: "A" }
+    ];
+
+    let currentQuestions = [];
+    let countdown;
+    let passwordContext = "";
+
+    // تعديل الترقيم هنا ليظهر 1، 2، 3...
     function renderQuestions(data, containerId) {
         const container = document.getElementById(containerId);
-        data.forEach(item => {
+        data.forEach((item, index) => {
             const div = document.createElement('div');
             div.className = 'question-block';
             div.innerHTML = `
-                <span class="question-text">${item.id}) ${item.q}</span>
+                <span class="question-text">${index + 1}) ${item.q}</span>
                 <div class="options-grid">
                     ${item.options.map((opt, i) => {
                         const letter = String.fromCharCode(65 + i);
                         return `<label class="option-item" id="label-q${item.id}-${letter}">
-                            <input type="radio" name="q${item.id}" value="${letter}"> ${letter}) ${opt}
+                            <input type="radio" name="q${item.id}" value="${letter}" onchange="saveProgress()"> ${letter}) ${opt}
                         </label>`;
                     }).join('')}
                 </div>`;
             container.appendChild(div);
         });
     }
-
-    let countdown;
-    let passwordContext = "";
 
     function hideAllScreens() {
         document.getElementById('selectionScreen').style.display = 'none';
@@ -377,7 +453,6 @@ const vocabData = [
     function logoutTeacher() { hideAllScreens(); document.getElementById('selectionScreen').style.display = 'block'; }
     function backToTeacherDashboard() { hideAllScreens(); document.getElementById('teacherDashboard').style.display = 'block'; }
 
-    // --- عرض النتائج من السيرفر مباشرة ---
     async function showStudentsResults() {
         hideAllScreens();
         document.getElementById('studentsResultsScreen').style.display = 'block';
@@ -406,7 +481,6 @@ const vocabData = [
         }
     }
 
-    // --- إرسال النتيجة للسيرفر ---
     async function sendResultToSheet(name, score, date) {
         try {
             await fetch(API_URL, {
@@ -419,7 +493,6 @@ const vocabData = [
         } catch (e) { console.error(e); }
     }
 
-    // --- مسح جميع النتائج نهائياً من الإكسل ---
     async function clearAllResults() {
         if (confirm("هل أنت متأكد من مسح جميع النتائج من ملف Google Sheets نهائياً؟")) {
             try {
@@ -448,21 +521,72 @@ const vocabData = [
     }
 
     function startExam() {
-        hideAllScreens();
-        document.getElementById('examWrapper').style.display = 'block';
-        if (!localStorage.getItem('examEndTime')) {
-            const EXAM_MINUTES = 30;
-            let endTime = Date.now() + (EXAM_MINUTES * 60 * 1000);
-            localStorage.setItem('examEndTime', endTime);
+        const nameInput = document.getElementById('studentName');
+        if (!nameInput.value.trim()) {
+            alert("Please enter your name / يرجى إدخال اسمك");
+            nameInput.focus();
+            return;
         }
+
+        const selectedPassage = passagesPool[Math.floor(Math.random() * passagesPool.length)];
+        const grammarQs = [...grammarPool].sort(() => 0.5 - Math.random()).slice(0, 10);
+        const vocabQs = [...vocabPool].sort(() => 0.5 - Math.random()).slice(0, 5);
+
+        currentQuestions = [...selectedPassage.questions, ...grammarQs, ...vocabQs];
+
+        localStorage.setItem('studentName', nameInput.value);
+        localStorage.setItem('savedPassage', JSON.stringify(selectedPassage));
+        localStorage.setItem('savedGrammar', JSON.stringify(grammarQs));
+        localStorage.setItem('savedVocab', JSON.stringify(vocabQs));
+        localStorage.setItem('currentQuestions', JSON.stringify(currentQuestions));
         localStorage.setItem('examStarted', 'true');
+        localStorage.setItem('examEndTime', Date.now() + 30 * 60 * 1000);
+
+        renderExamContent(selectedPassage, grammarQs, vocabQs, nameInput.value);
+
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('examWrapper').style.display = 'block';
         initTimer();
+    }
+
+    function renderExamContent(passage, grammar, vocab, name) {
+        document.getElementById('displayName').innerText = "Student Name: " + name;
+        document.querySelector('.model-tag').innerText = passage.title;
+        document.querySelector('.passage-box').innerText = passage.text;
+        
+        document.getElementById('readingQuestionsSection').innerHTML = '';
+        document.getElementById('grammarQuestionsSection').innerHTML = '';
+        document.getElementById('vocabQuestionsSection').innerHTML = '';
+
+        renderQuestions(passage.questions, 'readingQuestionsSection');
+        renderQuestions(grammar, 'grammarQuestionsSection');
+        renderQuestions(vocab, 'vocabQuestionsSection');
+    }
+
+    function saveProgress() {
+        const answers = {};
+        currentQuestions.forEach(q => {
+            const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+            if (selected) answers[q.id] = selected.value;
+        });
+        localStorage.setItem('savedAnswers', JSON.stringify(answers));
+    }
+
+    function restoreAnswers() {
+        const savedAnswers = JSON.parse(localStorage.getItem('savedAnswers'));
+        if (savedAnswers) {
+            for (const qId in savedAnswers) {
+                const radio = document.querySelector(`input[name="q${qId}"][value="${savedAnswers[qId]}"]`);
+                if (radio) radio.checked = true;
+            }
+        }
     }
 
     function initTimer() {
         let endTime = localStorage.getItem('examEndTime');
         const timerDisplay = document.getElementById('timer');
         const timerBox = document.getElementById('timerBox');
+        if (countdown) clearInterval(countdown);
         countdown = setInterval(() => {
             const now = Date.now();
             const difference = endTime - now;
@@ -487,18 +611,14 @@ const vocabData = [
 
     function gradeQuiz(isAutoSubmit = false) {
         const nameInput = document.getElementById('studentName');
-        const studentName = nameInput.value.trim();
-        if (!isAutoSubmit && studentName === '') {
-            alert("يرجى إدخال اسمك!");
-            nameInput.focus();
-            nameInput.classList.add('error-shake');
-            setTimeout(() => nameInput.classList.remove('error-shake'), 400);
-            return;
-        }
+        const studentName = nameInput.value.trim() || localStorage.getItem('studentName');
+        
         clearInterval(countdown);
         localStorage.setItem('examFinished', 'true');
+        
         let score = 0;
-       const allQuestions = [...readingData, ...grammarData, ...vocabData];
+        const allQuestions = currentQuestions; 
+
         document.getElementById('quizForm').classList.add('disabled');
         document.getElementById('submitBtn').style.display = 'none';
         document.getElementById('retakeBtn').style.display = 'block';
@@ -507,22 +627,26 @@ const vocabData = [
         allQuestions.forEach(item => {
             const selected = document.querySelector(`input[name="q${item.id}"]:checked`);
             const correctLetter = item.ans;
+            
             if (selected) {
                 if (selected.value === correctLetter) {
                     score++;
                     document.getElementById(`label-q${item.id}-${selected.value}`).classList.add('is-correct');
                 } else {
                     document.getElementById(`label-q${item.id}-${selected.value}`).classList.add('is-wrong');
-                    document.getElementById(`label-q${item.id}-${correctLetter}`).classList.add('is-correct');
+                    const correctLabel = document.getElementById(`label-q${item.id}-${correctLetter}`);
+                    if(correctLabel) correctLabel.classList.add('is-correct');
                 }
             } else {
-                document.getElementById(`label-q${item.id}-${correctLetter}`).classList.add('is-correct');
+                const correctLabel = document.getElementById(`label-q${item.id}-${correctLetter}`);
+                if(correctLabel) correctLabel.classList.add('is-correct');
             }
         });
 
         const scoreDiv = document.getElementById('scoreDisplay');
         scoreDiv.style.display = 'block';
-        scoreDiv.innerHTML = `النتيجة: ${score} / 25`;
+        scoreDiv.innerHTML = `النتيجة: ${score} / ${allQuestions.length}`;
+        
         if(!localStorage.getItem('scoreSaved')) {
             saveStudentResult(studentName, score);
             localStorage.setItem('scoreSaved', 'true');
@@ -553,10 +677,7 @@ const vocabData = [
     }
 
     function resetExamVariables() {
-        localStorage.removeItem('examEndTime');
-        localStorage.removeItem('examFinished');
-        localStorage.removeItem('examStarted');
-        localStorage.removeItem('scoreSaved');
+        localStorage.clear();
         document.getElementById('quizForm').classList.remove('disabled');
         document.getElementById('submitBtn').style.display = 'block';
         document.getElementById('retakeBtn').style.display = 'none';
@@ -564,8 +685,6 @@ const vocabData = [
         const nameInput = document.getElementById('studentName');
         nameInput.disabled = false;
         nameInput.value = '';
-        document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
-        document.querySelectorAll('.option-item').forEach(label => { label.classList.remove('is-correct'); label.classList.remove('is-wrong'); });
         document.getElementById('timer').innerHTML = "30:00";
         document.getElementById('timerBox').classList.remove('timer-warning');
     }
@@ -578,48 +697,52 @@ const vocabData = [
     }
 
     window.onload = () => {
-    renderQuestions(readingData, 'readingQuestionsSection');
-    renderQuestions(grammarData, 'grammarQuestionsSection');
-    renderQuestions(vocabData, 'vocabQuestionsSection'); 
         if (localStorage.getItem('examFinished')) {
-            hideAllScreens(); document.getElementById('examWrapper').style.display = 'block'; setTimeout(() => gradeQuiz(true), 300);
+            const savedName = localStorage.getItem('studentName');
+            const savedPassage = JSON.parse(localStorage.getItem('savedPassage'));
+            const savedGrammar = JSON.parse(localStorage.getItem('savedGrammar'));
+            const savedVocab = JSON.parse(localStorage.getItem('savedVocab'));
+            currentQuestions = JSON.parse(localStorage.getItem('currentQuestions'));
+            
+            hideAllScreens();
+            document.getElementById('examWrapper').style.display = 'block';
+            renderExamContent(savedPassage, savedGrammar, savedVocab, savedName);
+            restoreAnswers();
+            gradeQuiz(true);
         } else if (localStorage.getItem('examStarted')) {
-            hideAllScreens(); document.getElementById('examWrapper').style.display = 'block'; initTimer();
+            const savedName = localStorage.getItem('studentName');
+            const savedPassage = JSON.parse(localStorage.getItem('savedPassage'));
+            const savedGrammar = JSON.parse(localStorage.getItem('savedGrammar'));
+            const savedVocab = JSON.parse(localStorage.getItem('savedVocab'));
+            currentQuestions = JSON.parse(localStorage.getItem('currentQuestions'));
+
+            hideAllScreens();
+            document.getElementById('examWrapper').style.display = 'block';
+            renderExamContent(savedPassage, savedGrammar, savedVocab, savedName);
+            restoreAnswers();
+            initTimer();
         }
     };
-    // وظيفة قفل الامتحان عند الخروج من النافذة
-window.addEventListener('blur', function() {
-    // نقفل الامتحان فقط إذا كان قد بدأ ولم ينتهِ بعد
-    if (localStorage.getItem('examStarted') && !localStorage.getItem('examFinished')) {
-        document.getElementById('lockScreen').style.display = 'flex';
-    }
-});
 
-// وظيفة فك القفل بواسطة الأستاذ
-function unlockExam() {
-    const lockPass = document.getElementById('lockPassword');
-    
-    if (lockPass.value === "unit7-1") {
-        // قمنا بحذف سطر الـ alert لكي يفتح الامتحان فوراً
-        document.getElementById('lockScreen').style.display = 'none';
-        lockPass.value = ""; 
-    } else {
-        lockPass.classList.add('error');
-        setTimeout(() => lockPass.classList.remove('error'), 400);
-        lockPass.value = "";
+    window.addEventListener('blur', function() {
+        if (localStorage.getItem('examStarted') && !localStorage.getItem('examFinished')) {
+            document.getElementById('lockScreen').style.display = 'flex';
+        }
+    });
+
+    function unlockExam() {
+        const lockPass = document.getElementById('lockPassword');
+        if (lockPass.value === "unit7-1") {
+            document.getElementById('lockScreen').style.display = 'none';
+            lockPass.value = ""; 
+        } else {
+            lockPass.classList.add('error');
+            setTimeout(() => lockPass.classList.remove('error'), 400);
+            lockPass.value = "";
+        }
     }
-}
-// منع زر اليمين للفأرة لزيادة الحماية (اختياري)
-document.addEventListener('contextmenu', event => event.preventDefault());
+
+    document.addEventListener('contextmenu', event => event.preventDefault());
 </script>
-    <div id="lockScreen">
-    <div class="pw-card" style="background: white; color: #333;">
-        <h2 style="color: var(--error);">⚠️ تم قفل الامتحان!</h2>
-        <p>لقد حاولت مغادرة الصفحة أو فتح نافذة أخرى.</p>
-        <p><b>يرجى استدعاء الأستاذ لفك القفل.</b></p>
-        <input type="password" id="lockPassword" class="pw-input" placeholder="كلمة سر الأستاذ">
-        <button class="start-btn" onclick="unlockExam()">فك القفل</button>
-    </div>
-</div>
 </body>
 </html>
