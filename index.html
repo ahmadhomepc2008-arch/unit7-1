@@ -203,6 +203,9 @@
             color: white;
             text-align: center;
         }
+
+
+        
     </style>
 </head>
 <body>
@@ -257,8 +260,8 @@
     <p style="color: #e74c3c; font-weight: bold;">Time allowed: 30 Minutes</p>
     
     <div class="student-info-box" style="margin-top: 20px;">
-        <label for="studentName">اسم الطالب (الرباعي):</label>
-        <input type="text" id="studentName" placeholder="أدخل اسمك هنا..." required>
+        <label for="studentName">الرقم الوطني الصحيح:</label>
+        <input type="text" id="studentName" placeholder="أدخل رقمك الوطني..." required>
     </div>
     
     <button class="start-btn" onclick="startExam()">Start Exam / ابدأ الامتحان</button>
@@ -312,6 +315,50 @@
 
 <script>
     const API_URL = 'https://sheetdb.io/api/v1/amdsjbd2qffaz';
+
+    const studentsDB = {
+    "2001874453": { name: "آدم محمد سعدي الخطيب", section: "أ" },
+    "2001882072": { name: "إبراهيم أحمد محمود بني ملحم", section: "أ" },
+    "2001878140": { name: "أحمد عمر ماجد شنطاوي", section: "أ" },
+    "2002000202": { name: "أحمد وهيب يوسف الشرع", section: "أ" },
+    "2001885411": { name: "أصيل أبو بكر محمود الحمدانيه", section: "أ" },
+    "2001976486": { name: "أمجد كمال أحمد خصاونة", section: "أ" },
+    "2001886376": { name: "أمين عبدالغني محمود الشرع", section: "أ" },
+    "2001985259": { name: "أنس بشار عقلة حسينات", section: "أ" },
+    "1005469279": { name: "أنس تيسير عبدالجليل القادري", section: "أ" },
+    "2001853589": { name: "أوس عماد أحمد الصبح", section: "أ" },
+    "2001836793": { name: "أيهم محمد أمين عكور", section: "أ" },
+    "2001839534": { name: "بشار عزمي سليمان خطاطبه", section: "أ" },
+    "2001914357": { name: "رامز عباس فالح الجراح", section: "أ" },
+    "2001826979": { name: "سيف إبراهيم حسن الكاشف", section: "أ" },
+    "2001959665": { name: "عامر محمد علي بني عيسى", section: "أ" },
+    "2001866038": { name: "عبدالله محمد محمود جباعته", section: "أ" },
+    "2001918010": { name: "عبدالله جعفر أحمد ربابعه", section: "أ" },
+    "8001350061": { name: "عبدالله عوض محمد جاسم", section: "أ" },
+    "2001907280": { name: "عدي محمد صالح سريس", section: "أ" },
+    "2001935981": { name: "علاء نبيل عبد اللطيف عامر", section: "أ" },
+    "2001861883": { name: "عمر أحمد حسن هنانده", section: "أ" },
+    "2001819072": { name: "عمر عبدالله حسن الشريفين", section: "أ" },
+    "2001873144": { name: "عمران أحمد غانم خميس", section: "أ" },
+    "2002007505": { name: "غيث عبد النعيم محمود عكور", section: "أ" },
+    "2001948688": { name: "مالك محمود فارس نواف", section: "أ" },
+    "2002023968": { name: "محمد إبراهيم منجد شحاده", section: "أ" },
+    "2001861882": { name: "محمد أحمد حسن هنانده", section: "أ" },
+    "2001937529": { name: "محمد حسام محمد العمري", section: "أ" },
+    "2001847718": { name: "محمد خالد عبدالقادر النمر", section: "أ" },
+    "2001929042": { name: "محمد رائد عقله حسينات", section: "أ" },
+    "2002036538": { name: "محمد عبد الكريم عبد الرحيم الهناندة", section: "أ" },
+    "2001976482": { name: "محمد كمال احمد خصاونة", section: "أ" },
+    "2001822314": { name: "محمد معتصم مصطفى العرود", section: "أ" },
+    "2002004737": { name: "محمد نور ساهر محمد ابودلو", section: "أ" },
+    "2001873314": { name: "محمود محمد علي ابو غزله", section: "أ" },
+    "2002024133": { name: "مهند جعفر محمود زيوت", section: "أ" },
+    "2001891095": { name: "نعيم محمد فوزي الطلافحه", section: "أ" },
+    "2002008309": { name: "هيثم محمد علي ذبيان", section: "أ" },
+    "2001838558": { name: "يحيى خالد محمد المومني", section: "أ" },
+    "2001878426": { name: "يزن مصطفى احمد العمري", section: "أ" },
+    "2001848507": { name: "يوسف رائد عدنان الخصاونه", section: "أ" }
+};
 
     const passagesPool = [
         {
@@ -453,66 +500,85 @@
     function logoutTeacher() { hideAllScreens(); document.getElementById('selectionScreen').style.display = 'block'; }
     function backToTeacherDashboard() { hideAllScreens(); document.getElementById('teacherDashboard').style.display = 'block'; }
 
-    async function showStudentsResults() {
-        hideAllScreens();
-        document.getElementById('studentsResultsScreen').style.display = 'block';
-        const container = document.getElementById('resultsTableContainer');
-        const status = document.getElementById('loadingStatus');
-        status.style.display = 'block';
-        container.innerHTML = '';
+ async function showStudentsResults() {
 
-        try {
-            const response = await fetch(API_URL);
-            const data = await response.json();
-            status.style.display = 'none';
+    hideAllScreens(); 
+    document.getElementById('studentsResultsScreen').style.display = 'block';
 
-            if (data.length === 0) {
-                container.innerHTML = '<p style="padding: 20px; color: #7f8c8d; text-align: center;">لا يوجد نتائج حالياً في ملف الإكسل.</p>';
-            } else {
-                let html = '<table class="results-table"><tr><th>اسم الطالب</th><th>النتيجة</th><th>التاريخ والوقت</th></tr>';
-                data.reverse().forEach(res => {
-                    html += `<tr><td>${res['اسم الطالب']}</td><td style="font-weight: bold; color: #27ae60;">${res['النتيجة']} / 25</td><td style="direction: ltr; text-align: right;">${res['التاريخ والوقت']}</td></tr>`;
-                });
-                html += '</table>';
-                container.innerHTML = html;
-            }
-        } catch (e) {
-            status.innerText = "خطأ في الاتصال بالسيرفر.";
+    const container = document.getElementById('resultsTableContainer');
+    const loading = document.getElementById('loadingStatus');
+
+    loading.style.display = "block";
+    container.innerHTML = "";
+
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        loading.style.display = "none";
+
+        if (!Array.isArray(data)) {
+            container.innerHTML = "<p>لا توجد بيانات أو خطأ في جلبها</p>";
+            return;
         }
-    }
 
-    async function sendResultToSheet(name, score, date) {
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    data: [{ 'اسم الطالب': name, 'النتيجة': score, 'التاريخ والوقت': date }]
-                })
-            });
-        } catch (e) { console.error(e); }
-    }
+        let html = `
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>اسم الطالب</th>
+                    <th>الرقم الوطني</th>
+                    <th>الشعبة</th>
+                    <th>النتيجة</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
 
-    async function clearAllResults() {
-        if (confirm("هل أنت متأكد من مسح جميع النتائج من ملف Google Sheets نهائياً؟")) {
-            try {
-                const response = await fetch(`${API_URL}/all`, { method: 'DELETE' });
-                if (response.ok) {
-                    alert("تم مسح جميع البيانات بنجاح.");
-                    showStudentsResults();
-                } else {
-                    alert("فشل المسح. تأكد من إعدادات SheetDB.");
-                }
-            } catch (e) { alert("خطأ في الاتصال."); }
-        }
-    }
+        data.reverse().forEach((res, index) => {
+            html += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${res['اسم الطالب'] || '-'}</td>
+                    <td>${res['الرقم الوطني'] || '-'}</td>
+                    <td>${res['الشعبة'] || '-'}</td>
+                    <td style="font-weight:bold; color:#27ae60;">
+                        ${res['النتيجة'] || 0}
+                    </td>
+                </tr>
+            `;
+        });
 
-    function saveStudentResult(name, score) {
-        let dateObj = new Date();
-        let formattedDate = dateObj.toLocaleDateString() + ' - ' + dateObj.toLocaleTimeString();
-        sendResultToSheet(name, score, formattedDate);
-    }
+        html += `</tbody></table>`;
+        container.innerHTML = html;
 
+    } catch (error) {
+        loading.style.display = "none";
+        container.innerHTML = "<p>فشل تحميل النتائج ❌</p>";
+        console.error(error);
+    }
+}
+   
+  async function sendResultToSheet(name, nationalId, section, score) {
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                data: [{
+                    'اسم الطالب': name,
+                    'الرقم الوطني': nationalId,
+                    'الشعبة': section,
+                    'النتيجة': score
+                }]
+            })
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+  
     function resetExamForStudents() {
         if(confirm("فتح الامتحان للطلاب مرة أخرى؟")) {
             resetExamVariables();
@@ -520,37 +586,51 @@
         }
     }
 
-    function startExam() {
-        const nameInput = document.getElementById('studentName');
-        if (!nameInput.value.trim()) {
-            alert("Please enter your name / يرجى إدخال اسمك");
-            nameInput.focus();
-            return;
-        }
+   function startExam() {
+    const nationalId = document.getElementById('studentName').value.trim();
 
-        const selectedPassage = passagesPool[Math.floor(Math.random() * passagesPool.length)];
-        const grammarQs = [...grammarPool].sort(() => 0.5 - Math.random()).slice(0, 10);
-        const vocabQs = [...vocabPool].sort(() => 0.5 - Math.random()).slice(0, 5);
+if (!studentsDB[nationalId]) {
+    alert("الرقم الوطني غير موجود ❌");
+    return;
+}
 
-        currentQuestions = [...selectedPassage.questions, ...grammarQs, ...vocabQs];
+const studentData = studentsDB[nationalId];
+const studentName = studentData.name;
+const section = studentData.section;  
+       
+    const selectedPassage = passagesPool[Math.floor(Math.random() * passagesPool.length)];
+    const grammarQs = [...grammarPool].sort(() => 0.5 - Math.random()).slice(0, 10);
+    const vocabQs = [...vocabPool].sort(() => 0.5 - Math.random()).slice(0, 5);
 
-        localStorage.setItem('studentName', nameInput.value);
-        localStorage.setItem('savedPassage', JSON.stringify(selectedPassage));
-        localStorage.setItem('savedGrammar', JSON.stringify(grammarQs));
-        localStorage.setItem('savedVocab', JSON.stringify(vocabQs));
-        localStorage.setItem('currentQuestions', JSON.stringify(currentQuestions));
-        localStorage.setItem('examStarted', 'true');
-        localStorage.setItem('examEndTime', Date.now() + 30 * 60 * 1000);
+    currentQuestions = [...selectedPassage.questions, ...grammarQs, ...vocabQs];
 
-        renderExamContent(selectedPassage, grammarQs, vocabQs, nameInput.value);
+    // تخزين بيانات الطالب
+    localStorage.setItem('studentName', studentData.name);
+    localStorage.setItem('studentSection', studentData.section);
+    localStorage.setItem('studentId', nationalId);
 
-        document.getElementById('startScreen').style.display = 'none';
-        document.getElementById('examWrapper').style.display = 'block';
-        initTimer();
-    }
+    localStorage.setItem('savedPassage', JSON.stringify(selectedPassage));
+    localStorage.setItem('savedGrammar', JSON.stringify(grammarQs));
+    localStorage.setItem('savedVocab', JSON.stringify(vocabQs));
+    localStorage.setItem('currentQuestions', JSON.stringify(currentQuestions));
+    localStorage.setItem('examStarted', 'true');
+    localStorage.setItem('examEndTime', Date.now() + 30 * 60 * 1000);
+
+    // عرض الامتحان
+    renderExamContent(selectedPassage, grammarQs, vocabQs, studentData.name);
+
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('examWrapper').style.display = 'block';
+
+    initTimer();
+}
 
     function renderExamContent(passage, grammar, vocab, name) {
-        document.getElementById('displayName').innerText = "Student Name: " + name;
+       const section = localStorage.getItem('studentSection');
+const id = localStorage.getItem('studentId');
+
+document.getElementById('displayName').innerText =
+    `الاسم: ${name} | الشعبة: ${section} | الرقم الوطني: ${id}`;
         document.querySelector('.model-tag').innerText = passage.title;
         document.querySelector('.passage-box').innerText = passage.text;
         
@@ -611,7 +691,9 @@
 
     function gradeQuiz(isAutoSubmit = false) {
         const nameInput = document.getElementById('studentName');
-        const studentName = nameInput.value.trim() || localStorage.getItem('studentName');
+       const studentName = localStorage.getItem('studentName');
+const nationalId = localStorage.getItem('studentId');
+const section = localStorage.getItem('studentSection');
         
         clearInterval(countdown);
         localStorage.setItem('examFinished', 'true');
@@ -648,7 +730,12 @@
         scoreDiv.innerHTML = `النتيجة: ${score} / ${allQuestions.length}`;
         
         if(!localStorage.getItem('scoreSaved')) {
-            saveStudentResult(studentName, score);
+       sendResultToSheet(
+    studentName,
+    localStorage.getItem('studentId'),
+    localStorage.getItem('studentSection'),
+    score
+);
             localStorage.setItem('scoreSaved', 'true');
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -743,6 +830,17 @@
     }
 
     document.addEventListener('contextmenu', event => event.preventDefault());
+
+function clearAllResults() {
+    const confirmOpen = confirm("هل تريد فتح ملف النتائج لحذفها يدويًا؟");
+    if (!confirmOpen) return;
+
+    window.open(
+        "https://docs.google.com/spreadsheets/d/1YBqIRIBKPIY9bjE96dwyQteZm3G_9bDw_MHxxcSNSuU/edit?gid=0#gid=0",
+        "_blank"
+    );
+}
+    
 </script>
 </body>
 </html>
